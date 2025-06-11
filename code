@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
+B_val = 1.0        
+E_val = 1.0        
+m_val = 1.0        
+q_val = 1.0        
+vx0 = 2         
+vy0 = 1          
+vz0 = 1          
+E = np.array([0.0, E_val, 0.0])
+B = np.array([0.0, 0.0, B_val])
+dt = 0.01
+t_total = 20
+steps = int(t_total / dt)
+r = np.zeros((steps, 3))
+v = np.zeros((steps, 3))
+r[0] = np.array([0.0, 0.0, 0.0])
+v[0] = np.array([vx0, vy0, vz0])
+# Boris 推进器（单位制下 q=m=1）
+qmdt = (q_val / m_val) * dt
+half_qmdt = 0.5 * qmdt
+
+for n in range(steps - 1):
+    v_minus = v[n] + half_qmdt * E
+    t = 0.5 * qmdt * B
+    s = 2 * t / (1 + np.dot(t, t))
+    v_prime = v_minus + np.cross(v_minus, t)
+    v_plus = v_minus + np.cross(v_prime, s)
+    v[n + 1] = v_plus + half_qmdt * E
+    r[n + 1] = r[n] + v[n + 1] * dt
+
+fig = plt.figure(figsize=(7, 6))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(r[:, 0], r[:, 1], r[:, 2])
+ax.set_xlabel("x (m)")
+ax.set_ylabel("y (m)")
+ax.set_zlabel("z (m)")
+plt.tight_layout()
+plt.show()
